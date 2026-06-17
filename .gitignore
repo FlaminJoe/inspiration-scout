@@ -1,0 +1,5 @@
+.browser-profile/
+inspiration-output/
+__pycache__/
+*.pyc
+.DS_Store
