@@ -26,9 +26,18 @@ Tryby `section`/`subpage` dotyczą tylko żywych stron; dla mockupów zawsze pob
    Jeśli użytkownik nie określił trybu — domyślnie `full`. Dopytaj tylko gdy
    intencja jest realnie niejasna.
 
-2. **Wygeneruj angielskie hasła** z branży — 2–4 trafne warianty/synonimy
-   (np. „klinika dentystyczna" → `dentist, dental clinic, orthodontist`). To
-   Twoje zadanie, nie skryptu.
+2. **Wygeneruj angielskie hasła** — 2–4 trafne frazy. To Twoje zadanie, nie skryptu.
+   - Z samej branży: synonimy/warianty (np. „klinika dentystyczna" →
+     `dentist, dental clinic, orthodontist`).
+   - Gdy użytkownik poda **styl / kolor / cechę** (minimalist, brutalist, dark mode,
+     pastel, bold typography…), wpleć je w frazę **połączoną z branżą jako jedno
+     hasło** — search jest tekstowy i łączy słowa logiką AND w obrębie frazy.
+     Przykład: branża „dentysta" + styl „minimalist, dark" →
+     `--keywords "minimalist dentist, dark dental clinic"` (NIE `"dentist, minimalist"`,
+     bo osobne hasła = osobne, sumowane wyszukiwania).
+   - Możesz też szukać po samym stylu/kolorze (np. `--keywords "brutalist portfolio"`),
+     gdy użytkownik chce inspiracji stylistycznej bez konkretnej branży.
+   - Uwaga: `godly` ignoruje hasła (feed kuratorowany) — styl/kolor tam nie filtrują.
 
 3. **Sprawdź zależności** (raz):
    ```bash
