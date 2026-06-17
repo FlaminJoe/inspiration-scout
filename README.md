@@ -5,7 +5,33 @@ po angielskich hasłach i zapisuje materiał referencyjny — full-page screensh
 żywych stron (z podstronami), grafiki mockupów, albo wybrany typ sekcji / jedną
 podstronę.
 
-Status: design zatwierdzony — patrz `docs/2026-06-17-design.md`. Implementacja w toku.
+Status: działa. Design: `docs/2026-06-17-design.md`.
 
-Galerie: godly.website, awwwards.com, cosmos.so, framer.com/marketplace,
-webflow.com/templates (żywe strony) + dribbble.com, behance.net, pinterest.com (mockupy).
+## Użycie
+
+```bash
+python3 scout.py --industry "dental clinic" --keywords "dentist,dental clinic" \
+    --galleries godly,awwwards,framer,dribbble,behance --mode full --limit 5 --depth 1
+python3 scout.py --industry "law firm" --keywords "law firm" --mode section --section testimonials
+python3 scout.py --industry "law firm" --keywords "law firm" --mode subpage --subpage /services
+python3 scout.py login cosmos     # jednorazowy ręczny login dla treści gated
+```
+
+Output: `./inspiration-output/<branża>-<data>/` (PNG/grafiki + `index.html` + `manifest.json`).
+
+## Galerie
+
+- Żywe strony (full-page + podstrony): `godly`, `awwwards`, `cosmos`, `framer`, `webflow`.
+- Mockupy (pobranie grafiki): `dribbble`, `behance`, `pinterest`.
+
+## Stan zweryfikowany (2026-06-17)
+
+- **Działa po haśle**: `dribbble`, `behance` (realne wyszukiwanie po słowie kluczowym).
+- **Kuratorowane**: `godly` — brak URL-owego wyszukiwania (search client-side), zwraca
+  top live-sites niezależnie od hasła; screenshoty żywych stron działają.
+- **Best-effort / może wymagać dostrojenia lub loginu**: `awwwards`, `cosmos`, `framer`,
+  `webflow`, `pinterest` — selektory/URL mogą wymagać tuningu po pierwszym realnym
+  uruchomieniu; treść gated odblokuje `scout.py login <galeria>`.
+
+Galerie bywają kruche (anti-bot, zmiany DOM). Skrypt pomija pozycję i zapisuje status
+w `manifest.json` zamiast się wywracać.
