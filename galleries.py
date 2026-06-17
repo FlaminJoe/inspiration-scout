@@ -49,6 +49,8 @@ class Gallery:
     nav_wait_ms: int = 1800
     href_re: str = ""               # opcjonalny wzorzec walidujący href karty (odsiewa nav)
     curated: bool = False           # galeria nie filtruje po haśle (feed kuratorowany)
+    search_input: str = ""          # gdy search jest client-side: selektor pola do wpisania hasła
+    resolve_re: str = ""            # gdy link live nie jest anchorem: regex wyłuskujący URL z treści
 
     def search_url(self, keyword: str) -> str:
         return self.search_tpl.format(kw=quote(keyword))
@@ -72,6 +74,15 @@ class Gallery:
             page.wait_for_timeout(self.nav_wait_ms)
         except Exception:
             return None
+
+        # wariant: live URL zaszyty w treści (np. webflow *.webflow.io w JSON)
+        if self.resolve_re:
+            try:
+                m = re.search(self.resolve_re, page.content())
+                return m.group(0) if m else None
+            except Exception:
+                return None
+
         gallery_host = self._gallery_host()
         try:
             anchors = page.eval_on_selector_all(
@@ -102,6 +113,10 @@ class Gallery:
         try:
             page.goto(url, wait_until="domcontentloaded", timeout=45000)
             page.wait_for_timeout(self.nav_wait_ms)
+            # search client-side: wpisz hasło w pole i poczekaj na przefiltrowanie
+            if self.search_input and not self.curated:
+                page.fill(self.search_input, keyword, timeout=8000)
+                page.wait_for_timeout(2800)
         except Exception:
             return []
 
@@ -168,17 +183,25 @@ REGISTRY = {
         "a[href*='/e/'], a[href*='/c/']", resolve=True,
         base="https://www.cosmos.so", href_re=r"/(e|c)/[^/]+",
     ),
+    # framer: search jest client-side (wpisanie w pole); preview to anchor "open
+    # preview" → *.framer.website (łapie resolve anchorowy). href_re odsiewa /categories/.
     "framer": Gallery(
         "framer", "site",
-        "https://www.framer.com/marketplace/templates/?search={kw}",
+        "https://www.framer.com/community/marketplace/templates/",
         "a[href*='/marketplace/templates/']", resolve=True,
-        base="https://www.framer.com", href_re=r"/marketplace/templates/[^/]+/[^/]+",
+        base="https://www.framer.com",
+        href_re=r"/marketplace/templates/[^/]+/?$",
+        search_input="input[type='search']",
     ),
+    # webflow: URL search działa; live preview (*.webflow.io) zaszyty w JSON strony
+    # detalu → wyłuskujemy regexem (resolve_re).
     "webflow": Gallery(
         "webflow", "site",
         "https://webflow.com/templates/search/{kw}",
-        "a[href*='/templates/']", resolve=True,
-        base="https://webflow.com", href_re=r"/templates/[^/]+/[^/]+",
+        "a[href*='/templates/html/']", resolve=True,
+        base="https://webflow.com",
+        href_re=r"/templates/html/[^/]+",
+        resolve_re=r"https://[a-z0-9\-]+\.webflow\.io/",
     ),
     # --- galerie mockupów ---
     "dribbble": Gallery(

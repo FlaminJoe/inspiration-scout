@@ -38,7 +38,8 @@ class TestGalleries(unittest.TestCase):
             g = galleries.get(name)
             url = g.search_url("law firm")
             self.assertTrue(url.startswith("http"))
-            if not g.curated:   # kuratorowane (godly) nie wstawiają hasła do URL
+            # kuratorowane (godly) i search-po-polu (framer) nie wstawiają hasła do URL
+            if not g.curated and not g.search_input:
                 self.assertIn("law", url)
 
     def test_href_validation(self):

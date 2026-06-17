@@ -20,6 +20,7 @@ import os
 import re
 import sys
 import time
+from urllib.parse import urlparse
 
 import galleries
 from galleries import REGISTRY
@@ -135,7 +136,9 @@ def run(args) -> int:
             for it in found[:args.limit]:
                 base = {"gallery": it.gallery, "kind": it.kind, "source_url": it.source_url,
                         "live_url": it.url, "keyword": it.keyword, "title": it.title}
-                slug = f"{it.gallery}-{slugify(it.title or it.url, 40)}"
+                # żywe strony: nazwa z hosta (informatywna); mockupy: z tytułu
+                label = urlparse(it.url).netloc if it.kind == "site" else (it.title or it.url)
+                slug = f"{it.gallery}-{slugify(label, 40)}"
                 try:
                     if it.kind == "site":
                         assets = capture.capture_site(
